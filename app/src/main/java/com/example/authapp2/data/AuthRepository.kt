@@ -1,16 +1,21 @@
 package com.example.authapp2.data
 
+import android.content.Context
+import android.util.Log
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 class AuthRepository {
 
-    private val auth: Firebase = FirebaseAuth.getInstance()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    suspend fun resgiterUser(email: String, password: String, name: String): Boolean {
+    suspend fun registerUser(email: String, password: String, name: String): Boolean {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val uid = result.user?.uid
@@ -27,8 +32,7 @@ class AuthRepository {
             }
             true
         } catch (e: Exception) {
-
-            Log.e("AuthRepository", "erro")
+            Log.e("AuthRepository", "Error during registration: ${e.message}", e)
             false
         }
     }
@@ -38,7 +42,7 @@ class AuthRepository {
             auth.signInWithEmailAndPassword(email, password).await()
             true
         } catch (e: Exception) {
-            Log.e("AuthRepository", "Erro no Login: ${e.message}")
+            Log.e("AuthRepository", "Login Error: ${e.message}", e)
             false
         }
     }
@@ -48,7 +52,7 @@ class AuthRepository {
             auth.sendPasswordResetEmail(email).await()
             true
         } catch (e: Exception) {
-            Log.e("AuthRepository", "Erro ao enviar email: ${e.message}")
+            Log.e("AuthRepository", "Error sending reset email: ${e.message}", e)
             false
         }
     }
@@ -58,20 +62,20 @@ class AuthRepository {
             val uid = auth.currentUser?.uid
             if (uid != null) {
                 val documentSnapshot = firestore.collection("users").document(uid).get().await()
-                snapshot.getString("name")
+                documentSnapshot.getString("name")
             } else {
                 null
             }
         } catch (e: Exception) {
-            Log.e("AuthRepository", "Erro ao obter nome de usuário: ${e.message}")
+            Log.e("AuthRepository", "Error getting username: ${e.message}", e)
             null
         }
     }
 
     fun getGoogleSignInClient(context: Context): GoogleSignInClient {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(context.getString(R.string.default_web_client_id)) // Token do cliente configurado no Firebase
-            .requestEmail() // Solicita o email do usuário
+            .requestIdToken(context.getString(com.example.authapp2.R.string.default_web_client_id))
+            .requestEmail()
             .build()
         return GoogleSignIn.getClient(context, gso)
     }
@@ -99,13 +103,16 @@ class AuthRepository {
                     )
 
                     userRef.set(userData).await()
-
                 }
             }
-
             true
         } catch (e: Exception) {
+            Log.e("AuthRepository", "Error with Google Login: ${e.message}", e)
             false
         }
+    }
+
+    fun logout() {
+        auth.signOut()
     }
 }

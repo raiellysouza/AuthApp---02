@@ -1,10 +1,8 @@
-package com.example.authapp3.viewmodel
-
-
+package com.example.authapp2.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.authapp3.data.AuthRepository
+import com.example.authapp2.data.AuthRepository
 
 /**
  * Classe responsável por criar instâncias da ViewModel com um repositório injetado.
@@ -25,6 +23,6 @@ class AuthViewModelFactory(private val repository: AuthRepository) : ViewModelPr
             @Suppress("UNCHECKED_CAST")
             return AuthViewModel(repository) as T
         }
-        throw IllegalArgumentException("Unknown ViewModel class") // Exceção se a classe não for reconhecida
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

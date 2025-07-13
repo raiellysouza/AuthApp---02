@@ -1,104 +1,122 @@
 package com.example.authapp2.ui.view
 
-
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.example.authapp2.viewmodel.AuthViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController) {
+fun LoginScreen(viewModel: AuthViewModel, navController: NavController) {
     var email by remember { mutableStateOf("") }
-    var isEmailValid by remember { mutableStateOf(true) }
+    var password by remember { mutableStateOf("") }
+    var isVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Cabeçalho
-        Text(
-            text = "Recuperar Senha",
-            fontSize = 24.sp,
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+    LaunchedEffect(Unit) {
+        isVisible = true // Ativa animação ao entrar na tela
+    }
 
-        // Campo de Email
-        OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it
-                isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(it).matches()
-            },
-            label = { Text("Digite seu email") },
-            isError = !isEmailValid,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = if (isEmailValid) MaterialTheme.colorScheme.primary else Color.Red,
-                unfocusedBorderColor = if (isEmailValid) MaterialTheme.colorScheme.onSurface else Color.Red,
-                errorBorderColor = Color.Red,
-                errorLabelColor = Color.Red
-            )
-        )
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = slideInVertically() + fadeIn()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Login", fontSize = 30.sp, style = MaterialTheme.typography.headlineLarge)
 
-        if (!isEmailValid) {
-            Text(
-                text = "Por favor, insira um email válido.",
-                color = Color.Red,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
+                Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+                CustomTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = "Email",
+                    icon = Icons.Filled.Email
+                )
 
-        // Botão de Recuperação
-        Button(
-            onClick = {
-                if (isEmailValid && email.isNotEmpty()) {
-                    viewModel.resetPassword(email) { success ->
-                        if (success) {
-                            Toast.makeText(context, "Email de recuperação enviado!", Toast.LENGTH_LONG).show()
-                            navController.navigate("login")
-                        } else {
-                            Toast.makeText(context, "Erro ao enviar email", Toast.LENGTH_LONG).show()
+                CustomTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = "Senha",
+                    icon = Icons.Filled.Lock,
+                    isPassword = true
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.login(email, password) { success ->
+                            if (success) {
+                                navController.navigate("home")
+                            } else {
+                                Toast.makeText(context, "Erro no login. Verifique suas credenciais.", Toast.LENGTH_LONG).show()
+                            }
                         }
-                    }
-                } else {
-                    Toast.makeText(context, "Insira um email válido", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Entrar", fontSize = 18.sp)
                 }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text("Enviar Email de Recuperação", fontSize = 16.sp)
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-        // Botão para Voltar ao Login
-        TextButton(
-            onClick = { navController.navigate("login") },
-            modifier = Modifier.padding(top = 16.dp)
-        ) {
-            Text("Voltar ao Login", fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
+                TextButton(onClick = { navController.navigate("register") }) {
+                    Text("Não tem uma conta? Registre-se")
+                }
+
+                TextButton(onClick = { navController.navigate("forgotPassword") }) {
+                    Text("Esqueceu a senha?")
+                }
+            }
         }
     }
+}
+
+// Reusing CustomTextField from RegisterScreen.kt if it exists, or a basic implementation:
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    isPassword: Boolean = false
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        leadingIcon = { Icon(imageVector = icon, contentDescription = null) },
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface,
+        )
+    )
 }

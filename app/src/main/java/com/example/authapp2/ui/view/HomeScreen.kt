@@ -1,4 +1,4 @@
-package com.example.authapp3.ui.view
+package com.example.authapp2.ui.view
 
 
 import androidx.compose.animation.AnimatedVisibility
@@ -14,7 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.authapp3.viewmodel.AuthViewModel
+import com.example.authapp2.viewmodel.AuthViewModel
 
 @Composable
 fun HomeScreen(viewModel: AuthViewModel, navController: NavController) {

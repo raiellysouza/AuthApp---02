@@ -61,7 +61,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     // Jetpack Compose
-    implementation(platform("androidx.compose:compose-bom:2023.09.01"))
+    implementation(platform(libs.androidx.compose.bom)) // Using version from libs.versions.toml
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -74,6 +74,7 @@ dependencies {
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3") // Added for await()
 
     // Lifecycle
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
@@ -92,5 +93,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
 }

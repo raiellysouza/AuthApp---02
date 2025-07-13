@@ -1,14 +1,9 @@
-package com.example.authapp3.viewmodel
-
-
-
-
-
+package com.example.authapp2.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.authapp3.data.AuthRepository
+import com.example.authapp2.data.AuthRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import kotlinx.coroutines.launch
 
@@ -35,7 +30,7 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
     fun register(email: String, password: String, name: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             val success = repository.registerUser(email, password, name)
-            onResult(success) // Retorna o resultado para a UI
+            onResult(success)
         }
     }
 
@@ -50,7 +45,7 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
     fun login(email: String, password: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             val success = repository.loginUser(email, password)
-            onResult(success) // Notifica a UI com o resultado
+            onResult(success)
         }
     }
 
@@ -90,7 +85,7 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
      */
     fun loginWithGoogle(idToken: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val success = repository.loginWithGoogle(idToken)
+            val success = repository.LoginWithGoogle(idToken)
             onResult(success)
         }
     }
@@ -113,6 +108,4 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
     fun logout() {
         repository.logout()
     }
-
-
 }
